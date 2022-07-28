@@ -11,6 +11,7 @@ pub use pallet::*;
 #[frame_support::pallet]
 pub mod pallet {
 	use frame_support::{
+		dispatch::fmt,
 		pallet_prelude::*,
 		traits::{UnixTime, Currency, Randomness},
 	};
@@ -25,7 +26,7 @@ pub mod pallet {
 	type BalanceOf<T> =
 		<<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 
-	#[derive(Clone, Encode, Decode, PartialEq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+	#[derive(Clone, Encode, Decode, PartialEq, TypeInfo, MaxEncodedLen)]
 	#[scale_info(skip_type_params(T))]
 	pub struct Kitty<T: Config> {
 		pub dna: [u8; 16],
@@ -35,11 +36,28 @@ pub mod pallet {
 		pub created_date: u128,
 	}
 
-	#[derive(Clone, Encode, Decode, PartialEq, Copy, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+	impl<T: Config> fmt::Debug for Kitty<T>{
+		fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+			f.debug_struct("Kitty")
+			.field("dna", &self.dna)
+			 .field("gender", &self.gender)
+			 .field("owner", &self.owner)
+			 .field("created_date", &self.created_date)
+			 .finish()
+		}
+	}
+
+	#[derive(Clone, Encode, Decode, PartialEq, Copy, TypeInfo, MaxEncodedLen, Debug)]
 	#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 	pub enum Gender {
 		Male,
 		Female,
+	}
+
+	impl Default for Gender {
+		fn default() -> Self {
+			Gender::Male
+		}
 	}
 
 	#[pallet::pallet]
